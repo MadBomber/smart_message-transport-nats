@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Dewayne VanHoozer"]
   spec.email = ["dewayne@vanhoozer.me"]
 
-  spec.summary = "TODO: Write a short summary, because RubyGems requires one."
-  spec.description = "TODO: Write a longer description or delete this line."
+  spec.summary = "NATS transport adapter for the SmartMessage framework"
+  spec.description = "Provides NATS messaging transport capabilities for SmartMessage, including support for pub/sub, request/reply, queue groups, authentication, TLS, and JetStream features."
   spec.homepage = "https://github.com/MadBomber/smart_message-transport-nats"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.0"
@@ -32,8 +32,13 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  # Runtime dependencies
+  spec.add_dependency "smart_message"
+  spec.add_dependency "nats-pure", "~> 2.0"
+
+  # Development dependencies
+  spec.add_development_dependency "debug_me"
+  spec.add_development_dependency "minitest", "~> 5.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
