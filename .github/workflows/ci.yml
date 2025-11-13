@@ -28,7 +28,7 @@ jobs:
         run: bundle install
 
       - name: Run tests
-        run: bundle exec ruby -Ilib:test test/smart_message/transport/test_nats.rb
+        run: bundle exec ruby -Ilib:test test/smart_message/transport/nats_test.rb
 
       - name: Upload coverage reports
         if: matrix.ruby-version == '3.3'
@@ -86,6 +86,6 @@ jobs:
         run: bundle install
 
       - name: Run integration tests
-        run: NATS_INTEGRATION_TESTS=1 bundle exec ruby -Ilib:test test/integration/test_nats_integration.rb
+        run: NATS_INTEGRATION_TESTS=1 bundle exec ruby -Ilib:test test/integration/nats_integration_test.rb
         env:
           NATS_TEST_SERVER: nats://localhost:4222
