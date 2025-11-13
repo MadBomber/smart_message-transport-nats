@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test Results</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h3><small>Generated on Nov 13, 2025 at 11:16 UTC</small></h3>
+        <h1>
+            Test Results</h1>
+        <p>
+            Finished in 0.15s, 330.42 tests/s, 454.32 assertions/s
+        </p>
+        <p>
+            <strong>
+            <span class="">48 tests</span>,
+            <span class=""> 66 assertions</span>,
+            <span class="text-danger"> 8 failures</span>,
+            <span class="text-danger"> 5 errors</span>,
+            <span class=""> 0 skips</span>
+            </strong>
+        </p>
+
+        <div class="progress">
+            <div class="progress-bar progress-bar-info" style="width: 73%">
+                73% passed
+            </div>
+            <div class="progress-bar progress-bar-danger" style="width: 27%">
+                27% failed
+            </div>
+            <div class="progress-bar progress-bar-warning" style="width: 0%">
+                0% skipped
+            </div>
+        </div>
+
+
+    </div>
+
+    
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>SmartMessage::Transport::TestNats</strong>
+                <span class="pull-right">
+                    <span class="">48 tests</span>,
+                    <span class=""> 66 assertions</span>,
+                    <span class="text-danger"> 8 failures</span>,
+                    <span class="text-danger"> 5 errors</span>,
+                    <span class=""> 0 skips</span>,
+                    <span> finished in 0.1334s</span>
+                </span>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_connection_failure_raises_error
+                                <span class="pull-right">
+                                    Assertions 0, time 0.000406s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/home/user/smart_message-transport-nats/lib/smart_message/transport/nats.rb:138
+
+SmartMessage::Transport::NATS::Error: Failed to connect to NATS: Connection failed
+    lib/smart_message/transport/nats.rb:138:in `rescue in connect_to_nats'
+    lib/smart_message/transport/nats.rb:131:in `connect_to_nats'
+    lib/smart_message/transport/nats.rb:42:in `configure'
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:20:in `initialize'
+    lib/smart_message/transport/nats.rb:36:in `initialize'
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/breaker_machines-0.7.0/lib/breaker_machines/dsl.rb:162:in `new'
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/breaker_machines-0.7.0/lib/breaker_machines/dsl.rb:162:in `new'
+    test/smart_message/transport/nats_test.rb:169:in `test_connection_failure_raises_error'</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_derive_subject_camel_case
+                                <span class="pull-right">
+                                    Assertions 1, time 0.024566s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">test/smart_message/transport/nats_test.rb:300
+
+--- expected
++++ actual
+@@ -1,3 +1,3 @@
+ # encoding: UTF-8
+ #    valid: true
+-"smart_message.order_confirmation"
++"smart_message.orderconfirmation"
+</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_disconnect_unsubscribes_all_subscriptions
+                                <span class="pull-right">
+                                    Assertions 0, time 0.005037s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+NoMethodError: undefined method `add' for #<SmartMessage::Dispatcher:0x00007ede0ac49688>
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88:in `subscribe'
+    lib/smart_message/transport/nats.rb:71:in `subscribe'
+    test/smart_message/transport/nats_test.rb:201:in `test_disconnect_unsubscribes_all_subscriptions'</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_flush_when_not_connected
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000206s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">test/smart_message/transport/nats_test.rb:556
+
+Expected true to be nil.</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_graceful_shutdown
+                                <span class="pull-right">
+                                    Assertions 0, time 0.001143s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+NoMethodError: undefined method `add' for #<SmartMessage::Dispatcher:0x00007ede0ac2e3d8>
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88:in `subscribe'
+    lib/smart_message/transport/nats.rb:71:in `subscribe'
+    test/smart_message/transport/nats_test.rb:638:in `test_graceful_shutdown'</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_publish_when_not_connected
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000469s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">test/smart_message/transport/nats_test.rb:627
+
+NoMethodError expected but nothing was raised.</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_server_info_when_not_connected
+                                <span class="pull-right">
+                                    Assertions 1, time 0.058732s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">test/smart_message/transport/nats_test.rb:529
+
+--- expected
++++ actual
+@@ -1 +1 @@
+-{}
++{:server_id=>"mock-server", :version=>"2.9.0", :max_payload=>1048576}
+</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_setup_connection_handlers_registers_callbacks
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000437s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">test/smart_message/transport/nats_test.rb:455
+
+Expected: 1
+  Actual: 2</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_subscribe_creates_subscription
+                                <span class="pull-right">
+                                    Assertions 0, time 0.003070s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+unexpected invocation: #<Mock:dispatcher>.add(#<Class:0x1bf8>, :process_message, {})
+unsatisfied expectations:
+- expected exactly once, invoked never: #<Mock:dispatcher>.register(#<Class:0x1bf8>, :process_message, {})
+satisfied expectations:
+- allowed any number of times, invoked twice: NATS.connect(any_parameters)
+- allowed any number of times, invoked never: #<Mock:dispatcher>.subscribers(any_parameters)
+</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_subscribe_only_creates_one_subscription_per_subject
+                                <span class="pull-right">
+                                    Assertions 0, time 0.000526s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+unexpected invocation: #<Mock:dispatcher>.add(#<Class:0x1b58>, :process_message, {})
+satisfied expectations:
+- allowed any number of times, invoked twice: NATS.connect(any_parameters)
+- allowed any number of times, invoked never: #<Mock:dispatcher>.register(any_parameters)
+- allowed any number of times, invoked never: #<Mock:dispatcher>.subscribers(any_parameters)
+</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_subscribe_uses_queue_group
+                                <span class="pull-right">
+                                    Assertions 0, time 0.002767s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+unexpected invocation: #<Mock:dispatcher>.add(#<Class:0x1cc0>, :process_message, {})
+unsatisfied expectations:
+- expected exactly once, invoked never: #<Mock:dispatcher>.register(any_parameters)
+satisfied expectations:
+- allowed any number of times, invoked twice: NATS.connect(any_parameters)
+- allowed any number of times, invoked never: #<Mock:dispatcher>.subscribers(any_parameters)
+</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_unsubscribe_keeps_subscription_if_other_subscribers_exist
+                                <span class="pull-right">
+                                    Assertions 0, time 0.000796s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+NoMethodError: undefined method `add' for #<SmartMessage::Dispatcher:0x00007ede0b3740c0>
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88:in `subscribe'
+    lib/smart_message/transport/nats.rb:71:in `subscribe'
+    test/smart_message/transport/nats_test.rb:386:in `test_unsubscribe_keeps_subscription_if_other_subscribers_exist'</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
+                                
+                                test_unsubscribe_removes_subscription
+                                <span class="pull-right">
+                                    Assertions 0, time 0.000704s
+                                </span>
+                            </h5>
+                            
+                                <pre class="list-group-item-text">/opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88
+
+NoMethodError: undefined method `add' for #<SmartMessage::Dispatcher:0x00007ede0ac37f28>
+    /opt/rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/smart_message-0.0.17/lib/smart_message/transport/base.rb:88:in `subscribe'
+    lib/smart_message/transport/nats.rb:71:in `subscribe'
+    test/smart_message/transport/nats_test.rb:368:in `test_unsubscribe_removes_subscription'</pre>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_configure_connects_to_nats
+                                <span class="pull-right">
+                                    Assertions 2, time 0.000940s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connect_calls_configure
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000601s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connected_returns_false_when_disconnected
+                                <span class="pull-right">
+                                    Assertions 1, time 0.006122s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connected_returns_false_when_shutdown
+                                <span class="pull-right">
+                                    Assertions 1, time 0.002389s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connected_returns_true_when_connected
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000431s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connection_with_authentication_options
+                                <span class="pull-right">
+                                    Assertions 1, time 0.002130s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_connection_with_tls_options
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000927s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_default_options
+                                <span class="pull-right">
+                                    Assertions 5, time 0.000205s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_default_options_from_environment
+                                <span class="pull-right">
+                                    Assertions 0, time 0.000308s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_derive_subject_namespaced_class
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000245s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_derive_subject_simple_class
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000200s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_derive_subject_with_custom_prefix
+                                <span class="pull-right">
+                                    Assertions 1, time 0.001425s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_disconnect_drains_and_closes_client
+                                <span class="pull-right">
+                                    Assertions 3, time 0.001603s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_flush_success
+                                <span class="pull-right">
+                                    Assertions 1, time 0.005183s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_flush_with_timeout
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000337s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_handle_message_calls_receive
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000516s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_handle_message_rescues_errors
+                                <span class="pull-right">
+                                    Assertions 2, time 0.000854s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_handle_message_validates_message_class
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000465s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_initialize_with_custom_options
+                                <span class="pull-right">
+                                    Assertions 1, time 0.002188s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_initialize_with_default_options
+                                <span class="pull-right">
+                                    Assertions 3, time 0.000228s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_multiple_connects
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000286s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_multiple_disconnects
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000371s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_on_disconnect_callback
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000640s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_on_error_callback
+                                <span class="pull-right">
+                                    Assertions 2, time 0.000301s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_on_reconnect_callback
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000542s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_publish_adds_headers
+                                <span class="pull-right">
+                                    Assertions 4, time 0.000757s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_publish_exceeds_max_payload_raises_error
+                                <span class="pull-right">
+                                    Assertions 3, time 0.000248s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_publish_message_success
+                                <span class="pull-right">
+                                    Assertions 4, time 0.000256s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_publish_with_custom_subject_prefix
+                                <span class="pull-right">
+                                    Assertions 2, time 0.002113s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_publish_with_reply_subject
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000261s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_request_sends_request
+                                <span class="pull-right">
+                                    Assertions 2, time 0.000223s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_request_with_timeout
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000537s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_server_info_returns_info
+                                <span class="pull-right">
+                                    Assertions 3, time 0.000241s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_stats_returns_statistics
+                                <span class="pull-right">
+                                    Assertions 3, time 0.000287s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_that_it_has_a_version_number
+                                <span class="pull-right">
+                                    Assertions 3, time 0.000173s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+</div>
+</body>
+</html>
