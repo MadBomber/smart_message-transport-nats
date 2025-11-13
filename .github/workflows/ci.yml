@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby-version: ['3.2', '3.3', '3.4']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run tests
+        run: bundle exec ruby -Ilib:test test/smart_message/transport/test_nats.rb
+
+      - name: Upload coverage reports
+        if: matrix.ruby-version == '3.3'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/.resultset.json
+          flags: unittests
+          name: codecov-umbrella
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  rubocop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run RuboCop
+        run: bundle exec rubocop --format progress
+
+  integration:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    services:
+      nats:
+        image: nats:latest
+        ports:
+          - 4222:4222
+        options: >-
+          --health-cmd "wget --spider http://localhost:8222/healthz || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run integration tests
+        run: NATS_INTEGRATION_TESTS=1 bundle exec ruby -Ilib:test test/integration/test_nats_integration.rb
+        env:
+          NATS_TEST_SERVER: nats://localhost:4222
