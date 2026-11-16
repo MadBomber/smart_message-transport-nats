@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "Provides NATS messaging transport capabilities for SmartMessage, including support for pub/sub, request/reply, queue groups, authentication, TLS, and JetStream features."
   spec.homepage = "https://github.com/MadBomber/smart_message-transport-nats"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 4.0"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
   spec.metadata["homepage_uri"] = spec.homepage
