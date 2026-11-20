@@ -15,7 +15,7 @@ module SmartMessage
         skip "Skipping integration tests (set NATS_INTEGRATION_TESTS=1 to enable)" unless integration_tests_enabled?
 
         super
-        @test_message_class = create_test_message_class('IntegrationTestMessage')
+        @test_message_class = create_test_message_class("IntegrationTestMessage")
         @received_messages = []
       end
 
@@ -48,7 +48,7 @@ module SmartMessage
         end.new
 
         # Stub the dispatcher to call our receiver
-        @transport.instance_variable_get(:@dispatcher).define_singleton_method(:process) do |msg_class, data|
+        @transport.instance_variable_get(:@dispatcher).define_singleton_method(:process) do |_msg_class, data|
           receiver.process_message(data)
         end
 
@@ -63,9 +63,9 @@ module SmartMessage
         sleep 0.5
 
         # Simulate message receipt
-        subject = @transport.send(:derive_subject, @test_message_class)
+        @transport.send(:derive_subject, @test_message_class)
 
-        # Note: In a real integration test, we would verify the message was actually
+        # NOTE: In a real integration test, we would verify the message was actually
         # received through NATS. This test structure shows the pattern.
         assert @transport.connected?
       end
@@ -87,8 +87,8 @@ module SmartMessage
       def test_multiple_subscribers_with_queue_groups
         @transport = create_transport
 
-        message_class1 = create_test_message_class('QueueMessage1')
-        message_class2 = create_test_message_class('QueueMessage2')
+        message_class1 = create_test_message_class("QueueMessage1")
+        message_class2 = create_test_message_class("QueueMessage2")
 
         @transport.subscribe(message_class1, :handler1)
         @transport.subscribe(message_class2, :handler2)
@@ -106,7 +106,7 @@ module SmartMessage
 
         @transport = NATS.new(
           servers: [nats_server_url],
-          token: ENV['NATS_TEST_TOKEN']
+          token: ENV["NATS_TEST_TOKEN"]
         )
 
         @transport.connect
@@ -120,7 +120,7 @@ module SmartMessage
         @transport = NATS.new(
           servers: [nats_tls_server_url],
           tls: true,
-          tls_ca_file: ENV['NATS_TEST_CA_FILE']
+          tls_ca_file: ENV["NATS_TEST_CA_FILE"]
         )
 
         @transport.connect
@@ -168,7 +168,7 @@ module SmartMessage
         @transport = create_transport
 
         # Create a message near the max payload size
-        large_data = 'x' * (1024 * 1024 - 100) # Just under 1MB
+        large_data = "x" * (1024 * 1024 - 100) # Just under 1MB
 
         @transport.send(:do_publish, @test_message_class, large_data)
         @transport.flush
@@ -225,7 +225,7 @@ module SmartMessage
         @transport.subscribe(@test_message_class, :handle_request)
 
         # Send a request
-        response = @transport.send(:request, 'test.request', '{"query": "data"}', timeout: 5.0)
+        response = @transport.send(:request, "test.request", '{"query": "data"}', timeout: 5.0)
 
         assert response
       end
@@ -244,15 +244,15 @@ module SmartMessage
       end
 
       def nats_server_url
-        ENV['NATS_TEST_SERVER'] || 'nats://localhost:4222'
+        ENV["NATS_TEST_SERVER"] || "nats://localhost:4222"
       end
 
       def nats_tls_server_url
-        ENV['NATS_TEST_TLS_SERVER'] || 'nats://localhost:4443'
+        ENV["NATS_TEST_TLS_SERVER"] || "nats://localhost:4443"
       end
 
       def integration_tests_enabled?
-        ENV['NATS_INTEGRATION_TESTS'] == '1' || ENV['NATS_INTEGRATION_TESTS'] == 'true'
+        %w[1 true].include?(ENV["NATS_INTEGRATION_TESTS"])
       end
     end
   end

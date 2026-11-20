@@ -1,33 +1,33 @@
 # frozen_string_literal: true
 
 require_relative "nats/version"
-require 'smart_message/transport/base'
-require 'nats/client'
+require "smart_message/transport/base"
+require "nats/client"
 
 module SmartMessage
   module Transport
     class NATS < Base
       class Error < StandardError; end
-      
+
       DEFAULT_CONFIG = {
-        servers: ENV['NATS_SERVERS']&.split(',') || ['nats://localhost:4222'],
-        user: ENV['NATS_USER'],
-        password: ENV['NATS_PASSWORD'],
-        token: ENV['NATS_TOKEN'],
-        nkeys_seed: ENV['NATS_NKEY_SEED'],
-        jwt: ENV['NATS_JWT'],
-        tls: ENV['NATS_TLS'] == 'true',
-        tls_ca_file: ENV['NATS_TLS_CA_FILE'],
-        tls_cert_file: ENV['NATS_TLS_CERT_FILE'],
-        tls_key_file: ENV['NATS_TLS_KEY_FILE'],
+        servers: ENV["NATS_SERVERS"]&.split(",") || ["nats://localhost:4222"],
+        user: ENV["NATS_USER"],
+        password: ENV["NATS_PASSWORD"],
+        token: ENV["NATS_TOKEN"],
+        nkeys_seed: ENV["NATS_NKEY_SEED"],
+        jwt: ENV["NATS_JWT"],
+        tls: ENV["NATS_TLS"] == "true",
+        tls_ca_file: ENV["NATS_TLS_CA_FILE"],
+        tls_cert_file: ENV["NATS_TLS_CERT_FILE"],
+        tls_key_file: ENV["NATS_TLS_KEY_FILE"],
         reconnect: true,
-        reconnect_time_wait: ENV['NATS_RECONNECT_TIME_WAIT']&.to_f || 2.0,
-        max_reconnect_attempts: ENV['NATS_MAX_RECONNECT_ATTEMPTS']&.to_i || 60,
-        connect_timeout: ENV['NATS_CONNECT_TIMEOUT']&.to_f || 2.0,
-        drain_timeout: ENV['NATS_DRAIN_TIMEOUT']&.to_f || 30.0,
-        subject_prefix: ENV['SMART_MESSAGE_SUBJECT_PREFIX'] || 'smart_message',
-        queue_group: ENV['SMART_MESSAGE_QUEUE_GROUP'] || 'smart_message_workers',
-        max_payload: ENV['NATS_MAX_PAYLOAD']&.to_i || 1048576 # 1MB default
+        reconnect_time_wait: ENV["NATS_RECONNECT_TIME_WAIT"]&.to_f || 2.0,
+        max_reconnect_attempts: ENV["NATS_MAX_RECONNECT_ATTEMPTS"]&.to_i || 60,
+        connect_timeout: ENV["NATS_CONNECT_TIMEOUT"]&.to_f || 2.0,
+        drain_timeout: ENV["NATS_DRAIN_TIMEOUT"]&.to_f || 30.0,
+        subject_prefix: ENV["SMART_MESSAGE_SUBJECT_PREFIX"] || "smart_message",
+        queue_group: ENV["SMART_MESSAGE_QUEUE_GROUP"] || "smart_message_workers",
+        max_payload: ENV["NATS_MAX_PAYLOAD"]&.to_i || 1_048_576 # 1MB default
       }.freeze
 
       attr_reader :client, :subscriptions
@@ -41,7 +41,7 @@ module SmartMessage
       def configure
         connect_to_nats
         setup_connection_handlers
-        logger.info { "[NATS] Transport configured with servers: #{@options[:servers].join(', ')}" }
+        logger.info { "[NATS] Transport configured with servers: #{@options[:servers].join(", ")}" }
       end
 
       def default_options
@@ -50,38 +50,38 @@ module SmartMessage
 
       def do_publish(message_class, serialized_message)
         subject = derive_subject(message_class)
-        
+
         # Check payload size
         if serialized_message.bytesize > @options[:max_payload]
           raise Error, "Message size (#{serialized_message.bytesize}) exceeds max payload (#{@options[:max_payload]})"
         end
-        
+
         headers = {
-          'Smart-Message-Class' => message_class.to_s,
-          'Smart-Message-Version' => SmartMessage::VERSION,
-          'Content-Type' => 'application/json',
-          'Timestamp' => Time.now.iso8601
+          "Smart-Message-Class" => message_class.to_s,
+          "Smart-Message-Version" => SmartMessage::VERSION,
+          "Content-Type" => "application/json",
+          "Timestamp" => Time.now.iso8601
         }
-        
+
         @client.publish(subject, serialized_message, headers: headers)
         logger.debug { "[NATS] Published message to subject: #{subject}" }
       end
 
       def subscribe(message_class, process_method, filter_options = {})
         super(message_class, process_method, filter_options)
-        
+
         subject = derive_subject(message_class)
         create_subscription(subject, message_class) unless @subscriptions[subject]
       end
 
       def unsubscribe(message_class, process_method)
         super(message_class, process_method)
-        
+
         # Only remove subscription if no more subscribers for this message class
-        unless subscribers_remaining?(message_class)
-          subject = derive_subject(message_class)
-          remove_subscription(subject)
-        end
+        return if subscribers_remaining?(message_class)
+
+        subject = derive_subject(message_class)
+        remove_subscription(subject)
       end
 
       def connected?
@@ -95,19 +95,19 @@ module SmartMessage
 
       def disconnect
         @shutdown = true
-        
+
         # Unsubscribe from all subscriptions
         @subscriptions.each_value do |subscription|
           subscription.unsubscribe
         end
         @subscriptions.clear
-        
+
         # Drain and close client
         if @client&.connected?
           @client.drain(timeout: @options[:drain_timeout])
           @client.close
         end
-        
+
         logger.info { "[NATS] Transport disconnected" }
       end
 
@@ -130,10 +130,10 @@ module SmartMessage
 
       def connect_to_nats
         connection_options = build_connection_options
-        
+
         @client = ::NATS.connect(connection_options)
         logger.debug { "[NATS] Connected to NATS servers" }
-      rescue => e
+      rescue StandardError => e
         logger.error { "[NATS] Connection failed: #{e.message}" }
         raise Error, "Failed to connect to NATS: #{e.message}"
       end
@@ -189,50 +189,47 @@ module SmartMessage
 
       def create_subscription(subject, message_class)
         return if @subscriptions[subject]
-        
+
         # Use queue group for load balancing across multiple instances
         subscription = @client.subscribe(subject, queue: @options[:queue_group]) do |msg|
           handle_message(msg, message_class)
         end
-        
+
         @subscriptions[subject] = subscription
         logger.debug { "[NATS] Created subscription for subject: #{subject}" }
       end
 
       def remove_subscription(subject)
         subscription = @subscriptions.delete(subject)
-        if subscription
-          subscription.unsubscribe
-          logger.debug { "[NATS] Removed subscription for subject: #{subject}" }
-        end
+        return unless subscription
+
+        subscription.unsubscribe
+        logger.debug { "[NATS] Removed subscription for subject: #{subject}" }
       end
 
       def handle_message(msg, expected_message_class)
-        begin
-          # Validate headers
-          headers = msg.header || {}
-          message_class = headers['Smart-Message-Class']
-          
-          unless message_class == expected_message_class.to_s
-            logger.warn { "[NATS] Message class mismatch. Expected: #{expected_message_class}, Got: #{message_class}" }
-            return
-          end
-          
-          # Process the message
-          receive(message_class, msg.data)
-          
-        rescue => e
-          logger.error { "[NATS] Error processing message from subject #{msg.subject}: #{e.message}" }
-          logger.error { "[NATS] Message data length: #{msg.data&.length}" }
-          logger.error { "[NATS] Headers: #{msg.header}" }
+        # Validate headers
+        headers = msg.header || {}
+        message_class = headers["Smart-Message-Class"]
+
+        unless message_class == expected_message_class.to_s
+          logger.warn { "[NATS] Message class mismatch. Expected: #{expected_message_class}, Got: #{message_class}" }
+          return
         end
+
+        # Process the message
+        receive(message_class, msg.data)
+      rescue StandardError => e
+        logger.error { "[NATS] Error processing message from subject #{msg.subject}: #{e.message}" }
+        logger.error { "[NATS] Message data length: #{msg.data&.length}" }
+        logger.error { "[NATS] Headers: #{msg.header}" }
       end
 
       def derive_subject(message_class)
         # Convert class name to NATS subject format
         # e.g., "MyApp::UserMessage" -> "smart_message.my_app.user_message"
-        class_parts = message_class.to_s.split('::').map { |part| snake_case(part) }
-        ([@options[:subject_prefix]] + class_parts).join('.')
+        class_parts = message_class.to_s.split("::").map { |part| snake_case(part) }
+        ([@options[:subject_prefix]] + class_parts).join(".")
       end
 
       # Convert a CamelCase name to snake_case
@@ -271,7 +268,7 @@ module SmartMessage
         jetstream.add_consumer(stream_name, name: consumer_name, **options)
       end
 
-      # Key-Value store support (for future enhancement)  
+      # Key-Value store support (for future enhancement)
       def key_value_store(bucket)
         @client.key_value(bucket)
       end

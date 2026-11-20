@@ -3,20 +3,20 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 # Code coverage (must be required before application code)
-require 'simplecov'
+require "simplecov"
 SimpleCov.start do
-  add_filter '/test/'
-  add_filter '/vendor/'
+  add_filter "/test/"
+  add_filter "/vendor/"
 
-  add_group 'Transport', 'lib/smart_message/transport/nats.rb'
-  add_group 'Helpers', 'lib/smart_message/transport/nats/**/*'
+  add_group "Transport", "lib/smart_message/transport/nats.rb"
+  add_group "Helpers", "lib/smart_message/transport/nats/**/*"
 
   # Lower coverage requirement for initial testing
   minimum_coverage 50
 end
 
 # Set up SmartMessage Logger before requiring our transport
-require 'logger'
+require "logger"
 module SmartMessage
   # Configure logger for SmartMessage framework
   class << self
@@ -86,7 +86,7 @@ module SmartMessage
   end
 
   # Define VERSION constant if not already defined
-  VERSION = '0.0.1' unless defined?(VERSION)
+  VERSION = "0.0.1" unless defined?(VERSION)
 end
 
 require "smart_message/transport/nats"
@@ -99,7 +99,7 @@ require "minitest/hooks/test"
 Minitest::Reporters.use! [
   Minitest::Reporters::SpecReporter.new,
   Minitest::Reporters::HtmlReporter.new(
-    reports_dir: 'test/reports',
+    reports_dir: "test/reports",
     clean: true,
     add_timestamp: true
   )
@@ -125,7 +125,7 @@ module TestHelpers
   # Helper to create test options
   def default_test_options
     {
-      servers: ['nats://localhost:4222'],
+      servers: ["nats://localhost:4222"],
       reconnect: false, # Disable for tests
       connect_timeout: 1.0,
       max_reconnect_attempts: 0
@@ -133,7 +133,7 @@ module TestHelpers
   end
 
   # Helper to create a test message class
-  def create_test_message_class(name = 'TestMessage')
+  def create_test_message_class(name = "TestMessage")
     Class.new do
       define_singleton_method(:to_s) { name }
       define_singleton_method(:name) { name }
@@ -143,7 +143,7 @@ end
 
 # Mock NATS Client for unit testing
 class MockNATSClient
-  attr_reader :connected, :published_messages, :subscriptions, :callbacks
+  attr_reader :connected, :published_messages, :subscriptions, :callbacks, :server_info, :stats
   attr_accessor :should_fail
 
   def initialize
@@ -158,9 +158,9 @@ class MockNATSClient
     }
     @should_fail = false
     @server_info = {
-      server_id: 'mock-server',
-      version: '2.9.0',
-      max_payload: 1048576
+      server_id: "mock-server",
+      version: "2.9.0",
+      max_payload: 1_048_576
     }
     @stats = {
       in_msgs: 0,
@@ -175,8 +175,8 @@ class MockNATSClient
   end
 
   def publish(subject, data, headers: {}, reply: nil)
-    raise 'Not connected' unless @connected
-    raise 'Mock failure' if @should_fail
+    raise "Not connected" unless @connected
+    raise "Mock failure" if @should_fail
 
     @published_messages << {
       subject: subject,
@@ -190,23 +190,24 @@ class MockNATSClient
   end
 
   def subscribe(subject, queue: nil, &block)
-    raise 'Not connected' unless @connected
+    raise "Not connected" unless @connected
 
     subscription = MockSubscription.new(subject, queue, block)
     @subscriptions[subject] = subscription
     subscription
   end
 
-  def request(subject, data, timeout: 2.0, headers: {})
-    raise 'Not connected' unless @connected
-    raise 'Mock failure' if @should_fail
+  def request(subject, _data, timeout: 2.0, headers: {})
+    raise "Not connected" unless @connected
+    raise "Mock failure" if @should_fail
 
     # Simulate a request/reply
     MockMessage.new(subject, "reply-data", {})
   end
 
-  def flush(timeout = nil)
-    raise 'Not connected' unless @connected
+  def flush(_timeout = nil)
+    raise "Not connected" unless @connected
+
     true
   end
 
@@ -236,14 +237,6 @@ class MockNATSClient
     @callbacks[:error] << block
   end
 
-  def server_info
-    @server_info
-  end
-
-  def stats
-    @stats
-  end
-
   # Simulate receiving a message
   def simulate_message(subject, data, headers = {})
     subscription = @subscriptions[subject]
@@ -259,7 +252,7 @@ class MockNATSClient
   end
 
   # Simulate disconnection
-  def trigger_disconnect(reason = 'Test disconnect')
+  def trigger_disconnect(reason = "Test disconnect")
     @connected = false
     @callbacks[:disconnect].each { |cb| cb.call(reason) }
   end
