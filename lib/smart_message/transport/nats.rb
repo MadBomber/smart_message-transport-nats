@@ -78,7 +78,7 @@ module SmartMessage
         super(message_class, process_method)
         
         # Only remove subscription if no more subscribers for this message class
-        if @dispatcher.subscribers[message_class].empty?
+        unless subscribers_remaining?(message_class)
           subject = derive_subject(message_class)
           remove_subscription(subject)
         end
@@ -230,10 +230,22 @@ module SmartMessage
 
       def derive_subject(message_class)
         # Convert class name to NATS subject format
-        # e.g., "MyApp::UserMessage" -> "smart_message.myapp.user_message"
-        class_parts = message_class.to_s.split('::').map(&:downcase)
-        subject_parts = [@options[:subject_prefix]] + class_parts.map { |part| part.gsub(/([a-z])([A-Z])/, '\1_\2').downcase }
-        subject_parts.join('.')
+        # e.g., "MyApp::UserMessage" -> "smart_message.my_app.user_message"
+        class_parts = message_class.to_s.split('::').map { |part| snake_case(part) }
+        ([@options[:subject_prefix]] + class_parts).join('.')
+      end
+
+      # Convert a CamelCase name to snake_case
+      # e.g., "OrderConfirmation" -> "order_confirmation"
+      def snake_case(name)
+        name.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+            .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+            .downcase
+      end
+
+      # The dispatcher keys its subscribers by message class name (String)
+      def subscribers_remaining?(message_class)
+        !@dispatcher.subscribers.fetch(String(message_class), []).empty?
       end
 
       # Request/reply pattern support for future enhancement
