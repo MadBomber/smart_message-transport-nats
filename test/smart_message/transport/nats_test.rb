@@ -15,10 +15,10 @@ module SmartMessage
         ::NATS.stubs(:connect).returns(@mock_client)
 
         # Create a test message class
-        @test_message_class = create_test_message_class('TestMessage')
+        @test_message_class = create_test_message_class("TestMessage")
 
         # Stub the dispatcher for some tests
-        @mock_dispatcher = mock('dispatcher')
+        @mock_dispatcher = mock("dispatcher")
         @mock_dispatcher.stubs(:subscribers).returns({})
       end
 
@@ -49,9 +49,9 @@ module SmartMessage
 
       def test_initialize_with_custom_options
         custom_options = {
-          servers: ['nats://custom:4222'],
-          user: 'testuser',
-          password: 'testpass'
+          servers: ["nats://custom:4222"],
+          user: "testuser",
+          password: "testpass"
         }
 
         transport = NATS.new(**custom_options)
@@ -62,24 +62,24 @@ module SmartMessage
         transport = NATS.new
 
         defaults = transport.default_options
-        assert_includes defaults[:servers], 'nats://localhost:4222'
-        assert_equal 'smart_message', defaults[:subject_prefix]
-        assert_equal 'smart_message_workers', defaults[:queue_group]
-        assert_equal 1048576, defaults[:max_payload]
+        assert_includes defaults[:servers], "nats://localhost:4222"
+        assert_equal "smart_message", defaults[:subject_prefix]
+        assert_equal "smart_message_workers", defaults[:queue_group]
+        assert_equal 1_048_576, defaults[:max_payload]
       end
 
       def test_default_options_from_environment
-        ENV['NATS_SERVERS'] = 'nats://env1:4222,nats://env2:4222'
-        ENV['NATS_USER'] = 'envuser'
-        ENV['SMART_MESSAGE_SUBJECT_PREFIX'] = 'custom_prefix'
+        ENV["NATS_SERVERS"] = "nats://env1:4222,nats://env2:4222"
+        ENV["NATS_USER"] = "envuser"
+        ENV["SMART_MESSAGE_SUBJECT_PREFIX"] = "custom_prefix"
 
         # Need to reload the class to pick up env vars
-        transport = NATS.new
+        NATS.new
 
         # Clean up
-        ENV.delete('NATS_SERVERS')
-        ENV.delete('NATS_USER')
-        ENV.delete('SMART_MESSAGE_SUBJECT_PREFIX')
+        ENV.delete("NATS_SERVERS")
+        ENV.delete("NATS_USER")
+        ENV.delete("SMART_MESSAGE_SUBJECT_PREFIX")
       end
 
       # ========================================
@@ -87,7 +87,7 @@ module SmartMessage
       # ========================================
 
       def test_configure_connects_to_nats
-        transport = NATS.new(servers: ['nats://localhost:4222'])
+        transport = NATS.new(servers: ["nats://localhost:4222"])
 
         # Verify NATS.connect is called
         ::NATS.expects(:connect).returns(@mock_client)
@@ -130,15 +130,15 @@ module SmartMessage
 
       def test_connection_with_authentication_options
         transport = NATS.new(
-          user: 'testuser',
-          password: 'testpass',
-          token: 'testtoken'
+          user: "testuser",
+          password: "testpass",
+          token: "testtoken"
         )
 
         ::NATS.expects(:connect).with do |options|
-          options[:user] == 'testuser' &&
-            options[:password] == 'testpass' &&
-            options[:token] == 'testtoken'
+          options[:user] == "testuser" &&
+            options[:password] == "testpass" &&
+            options[:token] == "testtoken"
         end.returns(@mock_client)
 
         transport.configure
@@ -147,16 +147,16 @@ module SmartMessage
       def test_connection_with_tls_options
         transport = NATS.new(
           tls: true,
-          tls_ca_file: '/path/to/ca.pem',
-          tls_cert_file: '/path/to/cert.pem',
-          tls_key_file: '/path/to/key.pem'
+          tls_ca_file: "/path/to/ca.pem",
+          tls_cert_file: "/path/to/cert.pem",
+          tls_key_file: "/path/to/key.pem"
         )
 
         ::NATS.expects(:connect).with do |options|
           options[:tls].is_a?(Hash) &&
-            options[:tls][:ca_file] == '/path/to/ca.pem' &&
-            options[:tls][:cert_file] == '/path/to/cert.pem' &&
-            options[:tls][:key_file] == '/path/to/key.pem'
+            options[:tls][:ca_file] == "/path/to/ca.pem" &&
+            options[:tls][:cert_file] == "/path/to/cert.pem" &&
+            options[:tls][:key_file] == "/path/to/key.pem"
         end.returns(@mock_client)
 
         transport.configure
@@ -164,12 +164,11 @@ module SmartMessage
 
       def test_connection_failure_raises_error
         ::NATS.unstub(:connect)
-        ::NATS.stubs(:connect).raises(StandardError.new('Connection failed'))
+        ::NATS.stubs(:connect).raises(StandardError.new("Connection failed"))
 
-        transport = NATS.new
-
+        # Transport::Base#initialize calls configure, so NATS.new connects
         error = assert_raises(NATS::Error) do
-          transport.configure
+          NATS.new
         end
 
         assert_match(/Failed to connect to NATS/, error.message)
@@ -197,7 +196,7 @@ module SmartMessage
         transport.configure
 
         # Add some subscriptions
-        transport.instance_variable_get(:@dispatcher).stubs(:register)
+        transport.instance_variable_get(:@dispatcher).stubs(:add)
         transport.subscribe(@test_message_class, :process_message)
 
         assert_equal 1, transport.subscriptions.size
@@ -223,8 +222,8 @@ module SmartMessage
         published = @mock_client.published_messages.last
         assert_equal subject, published[:subject]
         assert_equal serialized, published[:data]
-        assert_equal @test_message_class.to_s, published[:headers]['Smart-Message-Class']
-        assert_equal 'application/json', published[:headers]['Content-Type']
+        assert_equal @test_message_class.to_s, published[:headers]["Smart-Message-Class"]
+        assert_equal "application/json", published[:headers]["Content-Type"]
       end
 
       def test_publish_adds_headers
@@ -238,17 +237,17 @@ module SmartMessage
         published = @mock_client.published_messages.last
         headers = published[:headers]
 
-        assert_equal @test_message_class.to_s, headers['Smart-Message-Class']
-        assert_equal SmartMessage::VERSION, headers['Smart-Message-Version']
-        assert_equal 'application/json', headers['Content-Type']
-        assert headers.key?('Timestamp')
+        assert_equal @test_message_class.to_s, headers["Smart-Message-Class"]
+        assert_equal SmartMessage::VERSION, headers["Smart-Message-Version"]
+        assert_equal "application/json", headers["Content-Type"]
+        assert headers.key?("Timestamp")
       end
 
       def test_publish_exceeds_max_payload_raises_error
         transport = NATS.new(max_payload: 100)
         transport.configure
 
-        large_message = 'x' * 200
+        large_message = "x" * 200
 
         error = assert_raises(NATS::Error) do
           transport.send(:do_publish, @test_message_class, large_message)
@@ -258,7 +257,7 @@ module SmartMessage
       end
 
       def test_publish_with_custom_subject_prefix
-        transport = NATS.new(subject_prefix: 'custom_app')
+        transport = NATS.new(subject_prefix: "custom_app")
         transport.configure
 
         serialized = '{"test": "data"}'
@@ -275,38 +274,49 @@ module SmartMessage
       def test_derive_subject_simple_class
         transport = NATS.new
 
-        message_class = create_test_message_class('UserMessage')
+        message_class = create_test_message_class("UserMessage")
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'smart_message.usermessage', subject
+        assert_equal "smart_message.user_message", subject
       end
 
       def test_derive_subject_namespaced_class
         transport = NATS.new
 
-        message_class = create_test_message_class('MyApp::UserMessage')
+        message_class = create_test_message_class("MyApp::UserMessage")
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'smart_message.myapp.usermessage', subject
+        assert_equal "smart_message.my_app.user_message", subject
       end
 
       def test_derive_subject_camel_case
         transport = NATS.new
 
-        message_class = create_test_message_class('OrderConfirmation')
+        message_class = create_test_message_class("OrderConfirmation")
         subject = transport.send(:derive_subject, message_class)
 
         # Should convert CamelCase to snake_case
-        assert_equal 'smart_message.order_confirmation', subject
+        assert_equal "smart_message.order_confirmation", subject
       end
 
       def test_derive_subject_with_custom_prefix
-        transport = NATS.new(subject_prefix: 'my_prefix')
+        transport = NATS.new(subject_prefix: "my_prefix")
 
-        message_class = create_test_message_class('TestMessage')
+        message_class = create_test_message_class("TestMessage")
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'my_prefix.testmessage', subject
+        assert_equal "my_prefix.test_message", subject
+      end
+
+      def test_snake_case
+        transport = NATS.new
+
+        assert_equal "order_confirmation", transport.send(:snake_case, "OrderConfirmation")
+        assert_equal "my_app", transport.send(:snake_case, "MyApp")
+        assert_equal "http_request", transport.send(:snake_case, "HTTPRequest")
+        assert_equal "order2_confirmation", transport.send(:snake_case, "Order2Confirmation")
+        assert_equal "message", transport.send(:snake_case, "Message")
+        assert_equal "already_snake", transport.send(:snake_case, "already_snake")
       end
 
       # ========================================
@@ -318,7 +328,7 @@ module SmartMessage
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.expects(:register).with(@test_message_class, :process_message, {})
+        @mock_dispatcher.expects(:add).with(@test_message_class, :process_message, {})
 
         transport.subscribe(@test_message_class, :process_message)
 
@@ -327,18 +337,18 @@ module SmartMessage
       end
 
       def test_subscribe_uses_queue_group
-        transport = NATS.new(queue_group: 'test_workers')
+        transport = NATS.new(queue_group: "test_workers")
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.expects(:register)
+        @mock_dispatcher.expects(:add)
 
         transport.subscribe(@test_message_class, :process_message)
 
         subject = transport.send(:derive_subject, @test_message_class)
         subscription = @mock_client.subscriptions[subject]
 
-        assert_equal 'test_workers', subscription.queue
+        assert_equal "test_workers", subscription.queue
       end
 
       def test_subscribe_only_creates_one_subscription_per_subject
@@ -346,7 +356,7 @@ module SmartMessage
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.stubs(:register)
+        @mock_dispatcher.stubs(:add)
 
         # Subscribe twice with different methods
         transport.subscribe(@test_message_class, :process_message)
@@ -360,35 +370,44 @@ module SmartMessage
         transport = NATS.new
         transport.configure
 
-        mock_dispatcher = transport.instance_variable_get(:@dispatcher)
-        mock_dispatcher.stubs(:register)
-        mock_dispatcher.stubs(:unregister)
-        mock_dispatcher.stubs(:subscribers).returns({@test_message_class => []})
-
-        transport.subscribe(@test_message_class, :process_message)
+        transport.subscribe(@test_message_class, "process_message")
         assert_equal 1, transport.subscriptions.size
 
-        transport.unsubscribe(@test_message_class, :process_message)
+        transport.unsubscribe(@test_message_class, "process_message")
 
         # Should remove subscription when no more subscribers
         assert_empty transport.subscriptions
+        assert_empty transport.dispatcher.subscribers[@test_message_class.to_s]
       end
 
       def test_unsubscribe_keeps_subscription_if_other_subscribers_exist
         transport = NATS.new
         transport.configure
 
-        mock_dispatcher = transport.instance_variable_get(:@dispatcher)
-        mock_dispatcher.stubs(:register)
-        mock_dispatcher.stubs(:unregister)
-        mock_dispatcher.stubs(:subscribers).returns({@test_message_class => [:another_method]})
+        # The dispatcher keys subscribers by message class name (String)
+        transport.subscribe(@test_message_class, "process_message")
+        transport.subscribe(@test_message_class, "another_method")
 
-        transport.subscribe(@test_message_class, :process_message)
-
-        transport.unsubscribe(@test_message_class, :process_message)
+        transport.unsubscribe(@test_message_class, "process_message")
 
         # Should keep subscription since other subscribers exist
+        subject = transport.send(:derive_subject, @test_message_class)
         assert_equal 1, transport.subscriptions.size
+        refute transport.subscriptions[subject].unsubscribed
+
+        remaining = transport.dispatcher.subscribers[@test_message_class.to_s]
+        assert_equal(["another_method"], remaining.map { |sub| sub[:process_method] })
+      end
+
+      def test_subscribers_remaining
+        transport = NATS.new
+
+        refute transport.send(:subscribers_remaining?, @test_message_class)
+
+        transport.subscribe(@test_message_class, "process_message")
+
+        assert transport.send(:subscribers_remaining?, @test_message_class)
+        assert transport.send(:subscribers_remaining?, @test_message_class.to_s)
       end
 
       # ========================================
@@ -400,9 +419,9 @@ module SmartMessage
         transport.configure
 
         message = MockMessage.new(
-          'test.subject',
+          "test.subject",
           '{"test": "data"}',
-          {'Smart-Message-Class' => 'WrongClass'}
+          { "Smart-Message-Class" => "WrongClass" }
         )
 
         # Should not call receive since class doesn't match
@@ -416,9 +435,9 @@ module SmartMessage
         transport.configure
 
         message = MockMessage.new(
-          'test.subject',
+          "test.subject",
           '{"test": "data"}',
-          {'Smart-Message-Class' => @test_message_class.to_s}
+          { "Smart-Message-Class" => @test_message_class.to_s }
         )
 
         transport.expects(:receive).with(@test_message_class.to_s, '{"test": "data"}')
@@ -431,12 +450,12 @@ module SmartMessage
         transport.configure
 
         message = MockMessage.new(
-          'test.subject',
+          "test.subject",
           '{"test": "data"}',
-          {'Smart-Message-Class' => @test_message_class.to_s}
+          { "Smart-Message-Class" => @test_message_class.to_s }
         )
 
-        transport.stubs(:receive).raises(StandardError.new('Processing error'))
+        transport.stubs(:receive).raises(StandardError.new("Processing error"))
 
         # Should not raise, just log the error
         assert_silent do
@@ -449,8 +468,8 @@ module SmartMessage
       # ========================================
 
       def test_setup_connection_handlers_registers_callbacks
-        transport = NATS.new
-        transport.configure
+        # Transport::Base#initialize calls configure, which registers the handlers
+        NATS.new
 
         assert_equal 1, @mock_client.callbacks[:reconnect].size
         assert_equal 1, @mock_client.callbacks[:disconnect].size
@@ -474,7 +493,7 @@ module SmartMessage
         transport.configure
 
         # Trigger disconnect
-        @mock_client.trigger_disconnect('Test disconnect')
+        @mock_client.trigger_disconnect("Test disconnect")
 
         # Should log but not raise
         refute @mock_client.connected?
@@ -484,7 +503,7 @@ module SmartMessage
         transport = NATS.new
         transport.configure
 
-        error = StandardError.new('Test error')
+        error = StandardError.new("Test error")
 
         # Should log but not raise
         assert_silent do
@@ -503,8 +522,8 @@ module SmartMessage
         info = transport.server_info
 
         assert_kind_of Hash, info
-        assert_equal 'mock-server', info[:server_id]
-        assert_equal '2.9.0', info[:version]
+        assert_equal "mock-server", info[:server_id]
+        assert_equal "2.9.0", info[:version]
       end
 
       def test_stats_returns_statistics
@@ -518,11 +537,13 @@ module SmartMessage
 
         assert_kind_of Hash, stats
         assert_equal 1, stats[:out_msgs]
-        assert stats[:out_bytes] > 0
+        assert_predicate stats[:out_bytes], :positive?
       end
 
       def test_server_info_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
         info = transport.server_info
 
@@ -551,6 +572,8 @@ module SmartMessage
 
       def test_flush_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
         # Should return nil when not connected
         assert_nil transport.flush
@@ -564,10 +587,10 @@ module SmartMessage
         transport = NATS.new
         transport.configure
 
-        response = transport.send(:request, 'test.subject', 'request data')
+        response = transport.send(:request, "test.subject", "request data")
 
         assert_kind_of MockMessage, response
-        assert_equal 'reply-data', response.data
+        assert_equal "reply-data", response.data
       end
 
       def test_request_with_timeout
@@ -575,13 +598,13 @@ module SmartMessage
         transport.configure
 
         @mock_client.expects(:request).with(
-          'test.subject',
-          'request data',
+          "test.subject",
+          "request data",
           timeout: 5.0,
           headers: {}
-        ).returns(MockMessage.new('test.subject', 'reply', {}))
+        ).returns(MockMessage.new("test.subject", "reply", {}))
 
-        transport.send(:request, 'test.subject', 'request data', timeout: 5.0)
+        transport.send(:request, "test.subject", "request data", timeout: 5.0)
       end
 
       def test_publish_with_reply_subject
@@ -590,10 +613,10 @@ module SmartMessage
 
         subject = transport.send(:derive_subject, @test_message_class)
 
-        transport.send(:publish_with_reply, subject, '{"test": "data"}', 'reply.subject')
+        transport.send(:publish_with_reply, subject, '{"test": "data"}', "reply.subject")
 
         published = @mock_client.published_messages.last
-        assert_equal 'reply.subject', published[:reply]
+        assert_equal "reply.subject", published[:reply]
       end
 
       # ========================================
@@ -621,10 +644,10 @@ module SmartMessage
 
       def test_publish_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
-        # Don't call configure
-
-        error = assert_raises(NoMethodError) do
+        assert_raises(NoMethodError) do
           transport.send(:do_publish, @test_message_class, '{"test": "data"}')
         end
       end
@@ -634,13 +657,11 @@ module SmartMessage
         transport.configure
 
         # Simulate receiving messages
-        transport.instance_variable_get(:@dispatcher).stubs(:register)
+        transport.instance_variable_get(:@dispatcher).stubs(:add)
         transport.subscribe(@test_message_class, :process_message)
 
-        # Disconnect should be clean
-        assert_nothing_raised do
-          transport.disconnect
-        end
+        # Disconnect should be clean (an exception here fails the test)
+        transport.disconnect
 
         refute transport.connected?
         assert_empty transport.subscriptions

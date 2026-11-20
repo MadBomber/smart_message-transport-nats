@@ -9,15 +9,17 @@ Gem::Specification.new do |spec|
   spec.email = ["dewayne@vanhoozer.me"]
 
   spec.summary = "NATS transport adapter for the SmartMessage framework"
-  spec.description = "Provides NATS messaging transport capabilities for SmartMessage, including support for pub/sub, request/reply, queue groups, authentication, TLS, and JetStream features."
+  spec.description = "Provides NATS messaging transport capabilities for SmartMessage, " \
+                     "including support for pub/sub, request/reply, queue groups, " \
+                     "authentication, TLS, and JetStream features."
   spec.homepage = "https://github.com/MadBomber/smart_message-transport-nats"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 4.0"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/MadBomber/smart_message-transport-nats"
-    spec.metadata["changelog_uri"] = "https://github.com/MadBomber/smart_message-transport-nats/blob/main/CHANGELOG.md"
+  spec.metadata["changelog_uri"] = "https://github.com/MadBomber/smart_message-transport-nats/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -33,8 +35,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "smart_message"
   spec.add_dependency "nats-pure", "~> 2.0"
+  spec.add_dependency "smart_message"
 
   # Development dependencies
   spec.add_development_dependency "debug_me"

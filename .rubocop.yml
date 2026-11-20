@@ -1,8 +1,31 @@
 AllCops:
-  TargetRubyVersion: 3.2
+  TargetRubyVersion: 4.0
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Mock clients in the tests mirror the keyword signatures of the real
+# NATS client without using every argument.
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+# Metrics limits are relaxed rather than refactoring the transport.
+Metrics/AbcSize:
+  Max: 40
+
+Metrics/ClassLength:
+  Max: 250
+  Exclude:
+    - "test/**/*"
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/MethodLength:
+  Max: 25
+
+Metrics/PerceivedComplexity:
+  Max: 10
