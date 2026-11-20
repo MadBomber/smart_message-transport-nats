@@ -537,7 +537,7 @@ module SmartMessage
 
         assert_kind_of Hash, stats
         assert_equal 1, stats[:out_msgs]
-        assert stats[:out_bytes] > 0
+        assert_predicate stats[:out_bytes], :positive?
       end
 
       def test_server_info_when_not_connected

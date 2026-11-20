@@ -9,7 +9,9 @@ Gem::Specification.new do |spec|
   spec.email = ["dewayne@vanhoozer.me"]
 
   spec.summary = "NATS transport adapter for the SmartMessage framework"
-  spec.description = "Provides NATS messaging transport capabilities for SmartMessage, including support for pub/sub, request/reply, queue groups, authentication, TLS, and JetStream features."
+  spec.description = "Provides NATS messaging transport capabilities for SmartMessage, " \
+                     "including support for pub/sub, request/reply, queue groups, " \
+                     "authentication, TLS, and JetStream features."
   spec.homepage = "https://github.com/MadBomber/smart_message-transport-nats"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 4.0"

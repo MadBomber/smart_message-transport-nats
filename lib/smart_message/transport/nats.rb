@@ -6,6 +6,7 @@ require "nats/client"
 
 module SmartMessage
   module Transport
+    # SmartMessage transport that publishes and subscribes through a NATS server
     class NATS < Base
       class Error < StandardError; end
 
@@ -97,9 +98,7 @@ module SmartMessage
         @shutdown = true
 
         # Unsubscribe from all subscriptions
-        @subscriptions.each_value do |subscription|
-          subscription.unsubscribe
-        end
+        @subscriptions.each_value(&:unsubscribe)
         @subscriptions.clear
 
         # Drain and close client

@@ -107,19 +107,9 @@ Minitest::Reporters.use! [
 
 # Test helpers
 module TestHelpers
-  def setup
-    super
-    # Reset any class variables or state
-  end
-
-  def teardown
-    super
-    # Clean up any test artifacts
-  end
-
   # Helper to create a mock NATS client
   def mock_nats_client
-    @mock_client ||= MockNATSClient.new
+    @mock_nats_client ||= MockNATSClient.new
   end
 
   # Helper to create test options
@@ -243,7 +233,7 @@ class MockNATSClient
     return unless subscription
 
     message = MockMessage.new(subject, data, headers)
-    subscription.callback.call(message) if subscription.callback
+    subscription.callback&.call(message)
   end
 
   # Simulate connection
@@ -296,6 +286,8 @@ class MockMessage
 end
 
 # Include helpers in all tests
-class Minitest::Test
-  include TestHelpers
+module Minitest
+  class Test
+    include TestHelpers
+  end
 end
