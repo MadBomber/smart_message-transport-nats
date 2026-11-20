@@ -202,6 +202,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  breaker_machines (< 0.28)
   debug_me
   irb
   minitest (~> 5.16, ~> 5.0)

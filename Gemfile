@@ -19,3 +19,8 @@ gem "simplecov", "~> 0.22", require: false
 gem "rubocop", "~> 1.21"
 gem "rubocop-minitest", "~> 0.31", require: false
 gem "rubocop-rake", "~> 0.6", require: false
+
+# Held below 0.28 until smart_message stops relying on activesupport's
+# Integer#seconds: breaker_machines 0.28 no longer loads activesupport,
+# and smart_message 0.0.17 then fails with NoMethodError.
+gem "breaker_machines", "< 0.28"
