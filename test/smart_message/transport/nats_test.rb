@@ -166,10 +166,9 @@ module SmartMessage
         ::NATS.unstub(:connect)
         ::NATS.stubs(:connect).raises(StandardError.new('Connection failed'))
 
-        transport = NATS.new
-
+        # Transport::Base#initialize calls configure, so NATS.new connects
         error = assert_raises(NATS::Error) do
-          transport.configure
+          NATS.new
         end
 
         assert_match(/Failed to connect to NATS/, error.message)
@@ -197,7 +196,7 @@ module SmartMessage
         transport.configure
 
         # Add some subscriptions
-        transport.instance_variable_get(:@dispatcher).stubs(:register)
+        transport.instance_variable_get(:@dispatcher).stubs(:add)
         transport.subscribe(@test_message_class, :process_message)
 
         assert_equal 1, transport.subscriptions.size
@@ -278,7 +277,7 @@ module SmartMessage
         message_class = create_test_message_class('UserMessage')
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'smart_message.usermessage', subject
+        assert_equal 'smart_message.user_message', subject
       end
 
       def test_derive_subject_namespaced_class
@@ -287,7 +286,7 @@ module SmartMessage
         message_class = create_test_message_class('MyApp::UserMessage')
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'smart_message.myapp.usermessage', subject
+        assert_equal 'smart_message.my_app.user_message', subject
       end
 
       def test_derive_subject_camel_case
@@ -306,7 +305,18 @@ module SmartMessage
         message_class = create_test_message_class('TestMessage')
         subject = transport.send(:derive_subject, message_class)
 
-        assert_equal 'my_prefix.testmessage', subject
+        assert_equal 'my_prefix.test_message', subject
+      end
+
+      def test_snake_case
+        transport = NATS.new
+
+        assert_equal 'order_confirmation', transport.send(:snake_case, 'OrderConfirmation')
+        assert_equal 'my_app', transport.send(:snake_case, 'MyApp')
+        assert_equal 'http_request', transport.send(:snake_case, 'HTTPRequest')
+        assert_equal 'order2_confirmation', transport.send(:snake_case, 'Order2Confirmation')
+        assert_equal 'message', transport.send(:snake_case, 'Message')
+        assert_equal 'already_snake', transport.send(:snake_case, 'already_snake')
       end
 
       # ========================================
@@ -318,7 +328,7 @@ module SmartMessage
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.expects(:register).with(@test_message_class, :process_message, {})
+        @mock_dispatcher.expects(:add).with(@test_message_class, :process_message, {})
 
         transport.subscribe(@test_message_class, :process_message)
 
@@ -331,7 +341,7 @@ module SmartMessage
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.expects(:register)
+        @mock_dispatcher.expects(:add)
 
         transport.subscribe(@test_message_class, :process_message)
 
@@ -346,7 +356,7 @@ module SmartMessage
         transport.configure
         transport.instance_variable_set(:@dispatcher, @mock_dispatcher)
 
-        @mock_dispatcher.stubs(:register)
+        @mock_dispatcher.stubs(:add)
 
         # Subscribe twice with different methods
         transport.subscribe(@test_message_class, :process_message)
@@ -360,35 +370,44 @@ module SmartMessage
         transport = NATS.new
         transport.configure
 
-        mock_dispatcher = transport.instance_variable_get(:@dispatcher)
-        mock_dispatcher.stubs(:register)
-        mock_dispatcher.stubs(:unregister)
-        mock_dispatcher.stubs(:subscribers).returns({@test_message_class => []})
-
-        transport.subscribe(@test_message_class, :process_message)
+        transport.subscribe(@test_message_class, 'process_message')
         assert_equal 1, transport.subscriptions.size
 
-        transport.unsubscribe(@test_message_class, :process_message)
+        transport.unsubscribe(@test_message_class, 'process_message')
 
         # Should remove subscription when no more subscribers
         assert_empty transport.subscriptions
+        assert_empty transport.dispatcher.subscribers[@test_message_class.to_s]
       end
 
       def test_unsubscribe_keeps_subscription_if_other_subscribers_exist
         transport = NATS.new
         transport.configure
 
-        mock_dispatcher = transport.instance_variable_get(:@dispatcher)
-        mock_dispatcher.stubs(:register)
-        mock_dispatcher.stubs(:unregister)
-        mock_dispatcher.stubs(:subscribers).returns({@test_message_class => [:another_method]})
+        # The dispatcher keys subscribers by message class name (String)
+        transport.subscribe(@test_message_class, 'process_message')
+        transport.subscribe(@test_message_class, 'another_method')
 
-        transport.subscribe(@test_message_class, :process_message)
-
-        transport.unsubscribe(@test_message_class, :process_message)
+        transport.unsubscribe(@test_message_class, 'process_message')
 
         # Should keep subscription since other subscribers exist
+        subject = transport.send(:derive_subject, @test_message_class)
         assert_equal 1, transport.subscriptions.size
+        refute transport.subscriptions[subject].unsubscribed
+
+        remaining = transport.dispatcher.subscribers[@test_message_class.to_s]
+        assert_equal ['another_method'], remaining.map { |sub| sub[:process_method] }
+      end
+
+      def test_subscribers_remaining
+        transport = NATS.new
+
+        refute transport.send(:subscribers_remaining?, @test_message_class)
+
+        transport.subscribe(@test_message_class, 'process_message')
+
+        assert transport.send(:subscribers_remaining?, @test_message_class)
+        assert transport.send(:subscribers_remaining?, @test_message_class.to_s)
       end
 
       # ========================================
@@ -449,8 +468,8 @@ module SmartMessage
       # ========================================
 
       def test_setup_connection_handlers_registers_callbacks
-        transport = NATS.new
-        transport.configure
+        # Transport::Base#initialize calls configure, which registers the handlers
+        NATS.new
 
         assert_equal 1, @mock_client.callbacks[:reconnect].size
         assert_equal 1, @mock_client.callbacks[:disconnect].size
@@ -523,6 +542,8 @@ module SmartMessage
 
       def test_server_info_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
         info = transport.server_info
 
@@ -551,6 +572,8 @@ module SmartMessage
 
       def test_flush_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
         # Should return nil when not connected
         assert_nil transport.flush
@@ -621,10 +644,10 @@ module SmartMessage
 
       def test_publish_when_not_connected
         transport = NATS.new
+        # NATS.new connects, so simulate a transport without a client
+        transport.instance_variable_set(:@client, nil)
 
-        # Don't call configure
-
-        error = assert_raises(NoMethodError) do
+        assert_raises(NoMethodError) do
           transport.send(:do_publish, @test_message_class, '{"test": "data"}')
         end
       end
@@ -634,13 +657,11 @@ module SmartMessage
         transport.configure
 
         # Simulate receiving messages
-        transport.instance_variable_get(:@dispatcher).stubs(:register)
+        transport.instance_variable_get(:@dispatcher).stubs(:add)
         transport.subscribe(@test_message_class, :process_message)
 
-        # Disconnect should be clean
-        assert_nothing_raised do
-          transport.disconnect
-        end
+        # Disconnect should be clean (an exception here fails the test)
+        transport.disconnect
 
         refute transport.connected?
         assert_empty transport.subscriptions

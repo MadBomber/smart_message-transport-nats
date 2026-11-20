@@ -35,6 +35,8 @@ module SmartMessage
   end
 
   # Mock Dispatcher for testing
+  # Mirrors the SmartMessage::Dispatcher API: subscribers are keyed by
+  # message class name (String) and managed with #add and #drop.
   class Dispatcher
     attr_reader :subscribers
 
@@ -42,13 +44,18 @@ module SmartMessage
       @subscribers = Hash.new { |h, k| h[k] = [] }
     end
 
-    def register(message_class, process_method, filter_options = {})
-      @subscribers[message_class] << process_method
+    def add(message_class, process_method, filter_options = {})
+      @subscribers[String(message_class)] << {
+        subscriber_id: process_method,
+        process_method: process_method,
+        filters: filter_options
+      }
     end
 
-    def unregister(message_class, process_method)
-      @subscribers[message_class].delete(process_method)
-      @subscribers.delete(message_class) if @subscribers[message_class].empty?
+    def drop(message_class, process_method, _filter_options = {})
+      @subscribers[String(message_class)].reject! do |sub|
+        sub[:process_method] == process_method
+      end
     end
 
     def process(message_class, serialized_message)
